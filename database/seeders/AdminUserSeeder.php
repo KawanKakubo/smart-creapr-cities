@@ -14,11 +14,6 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'name' => 'Administrador CREA-PR',
-            'email' => 'admin@creapr.org.br',
-            'password' => Hash::make('admin123'),
-            'email_verified_at' => now(),
-        ]);
+
     }
 }

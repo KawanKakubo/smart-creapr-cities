@@ -967,6 +967,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify(this.formData)
@@ -975,9 +976,20 @@
                         if (!response.ok) {
                             // Se não é 2xx, tentar ler a resposta como JSON para ver erros de validação
                             return response.json().then(err => {
-                                throw new Error(err.message || 'Erro ao processar formulário');
-                            }).catch(() => {
-                                throw new Error('Erro ao enviar manifestação. Por favor, tente novamente.');
+                                let errorMsg = err.message || 'Erro ao processar formulário';
+                                if (err.errors) {
+                                    // Pega a primeira mensagem de erro
+                                    const firstKey = Object.keys(err.errors)[0];
+                                    if (firstKey && err.errors[firstKey].length > 0) {
+                                        errorMsg = err.errors[firstKey][0];
+                                    }
+                                }
+                                throw new Error(errorMsg);
+                            }).catch(err => {
+                                if (err instanceof SyntaxError) {
+                                    throw new Error('Erro de comunicação com o servidor. Por favor, tente novamente.');
+                                }
+                                throw err;
                             });
                         }
                         return response.json();
