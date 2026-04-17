@@ -189,7 +189,7 @@
 
                 <!-- Botões Desktop -->
                 <div class="hidden md:flex items-center gap-6">
-                    <a href="{{ asset('assets/pdfs/Smart_Crea_Cities_2026_Regulamento_Termo_Manual_COMPLETO.pdf') }}"
+                    <a href="{{ asset('assets/pdfs/SEI_CREA-PR - 2376419 - Regulamento.pdf') }}"
                        target="_blank"
                               class="nav-btn text-slate-900 px-2 py-3 font-semibold text-sm hover:text-slate-700 flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,7 +197,7 @@
                         </svg>
                         Regulamento
                     </a>
-                    <a href="{{ asset('assets/docs/edital-smart-crea-cities-2026.pdf') }}"
+                    <a href="{{ asset('assets/pdfs/SEI_CREA-PR - 2406874 - Edital.pdf') }}"
                        target="_blank"
                               class="nav-btn text-slate-900 px-2 py-3 font-semibold text-sm hover:text-slate-700 flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,14 +217,14 @@
 
                 <!-- Botões Mobile Compactos -->
                 <div class="flex md:hidden items-center gap-1.5">
-                    <a href="{{ asset('assets/pdfs/Smart_Crea_Cities_2026_Regulamento_Termo_Manual_COMPLETO.pdf') }}"
+                    <a href="{{ asset('assets/pdfs/SEI_CREA-PR - 2376419 - Regulamento.pdf') }}"
                        target="_blank"
                               class="text-slate-900 px-2.5 py-2.5 rounded-lg font-semibold text-xs hover:text-slate-700 transition-all flex items-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
                     </a>
-                    <a href="{{ asset('assets/docs/edital-smart-crea-cities-2026.pdf') }}"
+                    <a href="{{ asset('assets/pdfs/SEI_CREA-PR - 2406874 - Edital.pdf') }}"
                        target="_blank"
                               class="text-slate-900 px-2.5 py-2.5 rounded-lg font-semibold text-xs hover:text-slate-700 transition-all flex items-center"
                               aria-label="Edital">
@@ -289,7 +289,7 @@
                         Manifestar Interesse
                     </a>
 
-                    <a href="{{ asset('assets/pdfs/Smart_Crea_Cities_2026_Regulamento_Termo_Manual_COMPLETO.pdf') }}"
+                    <a href="{{ asset('assets/pdfs/SEI_CREA-PR - 2376419 - Regulamento.pdf') }}"
                        target="_blank"
                        class="btn-secondary w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-sm md:text-base text-white inline-flex items-center justify-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -298,7 +298,7 @@
                         Regulamento
                     </a>
 
-                    <a href="{{ asset('assets/docs/edital-smart-crea-cities-2026.pdf') }}"
+                    <a href="{{ asset('assets/pdfs/SEI_CREA-PR - 2406874 - Edital.pdf') }}"
                        target="_blank"
                        class="btn-secondary w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-sm md:text-base text-white inline-flex items-center justify-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
