@@ -20,6 +20,9 @@ class PublicFormController extends Controller
      */
     public function show()
     {
+        if (\App\Models\SystemSetting::get('registrations_blocked', false)) {
+            return view('public.blocked');
+        }
         return view('public.manifestacao');
     }
 
@@ -28,6 +31,13 @@ class PublicFormController extends Controller
      */
     public function store(Request $request)
     {
+        if (\App\Models\SystemSetting::get('registrations_blocked', false)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'O período para inscrições finalizou.'
+            ], 403);
+        }
+
         // Validação básica dos campos obrigatórios
         $validated = $request->validate([
             'municipio_nome' => 'required|string|max:255',

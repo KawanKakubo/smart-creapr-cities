@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::table('submissions', function (Blueprint $table) {
             // Responsável pela Manifestação de Interesse
-            $table->string('responsavel_nome')->after('municipio_nome');
-            $table->string('responsavel_cpf')->after('responsavel_nome');
-            $table->string('responsavel_telefone')->after('responsavel_cpf');
-            $table->string('responsavel_email')->after('responsavel_telefone');
-            $table->string('responsavel_orgao')->after('responsavel_email');
-            $table->string('responsavel_funcao')->after('responsavel_orgao');
-            $table->string('orgao_endereco')->after('responsavel_funcao');
+            $table->string('responsavel_nome')->nullable()->after('municipio_nome');
+            $table->string('responsavel_cpf')->nullable()->after('responsavel_nome');
+            $table->string('responsavel_telefone')->nullable()->after('responsavel_cpf');
+            $table->string('responsavel_email')->nullable()->after('responsavel_telefone');
+            $table->string('responsavel_orgao')->nullable()->after('responsavel_email');
+            $table->string('responsavel_funcao')->nullable()->after('responsavel_orgao');
+            $table->string('orgao_endereco')->nullable()->after('responsavel_funcao');
             
             // Dados do Prefeito (completos)
-            $table->string('prefeito_cpf')->after('prefeito_nome');
-            $table->string('prefeito_telefone')->after('prefeito_cpf');
+            $table->string('prefeito_cpf')->nullable()->after('prefeito_nome');
+            $table->string('prefeito_telefone')->nullable()->after('prefeito_cpf');
             
             // Políticas Públicas Adicionais
             $table->boolean('possui_politica_governo_digital')->after('link_lei_inovacao')->default(false);

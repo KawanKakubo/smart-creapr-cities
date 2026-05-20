@@ -52,6 +52,17 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="bg-red-50 border-l-4 border-red-400 p-6 mb-8 rounded-lg shadow-md">
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <p class="font-semibold text-red-800">{{ session('error') }}</p>
+                </div>
+            </div>
+        @endif
+
         <!-- Cabeçalho -->
         <div class="bg-white rounded-xl shadow-md p-6 mb-8">
             <div class="flex items-center justify-between">
@@ -127,7 +138,34 @@
 
                 <!-- Programa Mais Engenharia -->
                 <div class="bg-white rounded-xl shadow-md p-6">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4">Programa Mais Engenharia</h2>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                        <h2 class="text-xl font-bold text-gray-900">Programa Mais Engenharia</h2>
+                        
+                        <form action="{{ route('admin.submissoes.updateMaisEngenharia', $submission) }}" method="POST" class="inline">
+                            @csrf
+                            @method('PATCH')
+                            @if($submission->faz_parte_mais_engenharia)
+                                <button type="submit"
+                                        onclick="return confirm('Deseja realmente REMOVER este município do programa Mais Engenharia? A conta de acesso associada ao responsável será removida.')"
+                                        class="inline-flex items-center px-3 py-1.5 border border-red-300 text-xs font-semibold rounded-lg text-red-700 bg-red-50 hover:bg-red-100 transition focus:outline-none focus:ring-2 focus:ring-red-500">
+                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Remover do Programa
+                                </button>
+                            @else
+                                <button type="submit"
+                                        onclick="return confirm('Deseja realmente ADICIONAR este município ao programa Mais Engenharia? Isso gerará credenciais de acesso e enviará um e-mail para o responsável.')"
+                                        class="inline-flex items-center px-3 py-1.5 border border-green-300 text-xs font-semibold rounded-lg text-green-700 bg-green-50 hover:bg-green-100 transition focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                                    </svg>
+                                    Incluir no Programa
+                                </button>
+                            @endif
+                        </form>
+                    </div>
+
                     @if($submission->faz_parte_mais_engenharia)
                         <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
                             <p class="font-semibold text-green-800">✓ Município faz parte do programa Mais Engenharia</p>

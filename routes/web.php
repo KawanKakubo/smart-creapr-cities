@@ -50,6 +50,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/submissoes/exportar', [AdminSubmissionController::class, 'export'])->name('submissoes.export');
     Route::get('/submissoes/{submission}', [AdminSubmissionController::class, 'show'])->name('submissoes.show');
     Route::patch('/submissoes/{submission}/status', [AdminSubmissionController::class, 'updateStatus'])->name('submissoes.updateStatus');
+    Route::patch('/submissoes/{submission}/mais-engenharia', [AdminSubmissionController::class, 'updateMaisEngenharia'])->name('submissoes.updateMaisEngenharia');
+    
+    // Configurações do Sistema
+    Route::post('/settings/toggle-registration', [AdminSubmissionController::class, 'toggleRegistration'])->name('settings.toggle-registration');
     
     // Gerenciamento de Questões Diagnósticas
     Route::resource('questions', QuestionController::class)->except(['show']);
