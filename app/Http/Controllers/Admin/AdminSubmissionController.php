@@ -22,49 +22,58 @@ class AdminSubmissionController extends Controller
     /**
      * Exibe o dashboard com estatísticas
      */
+    /**
+     * Exibe o dashboard com estatísticas
+     */
     public function dashboard()
     {
         // Estatísticas gerais
-        $totalSubmissoes = Submission::count();
-        $pendentes = Submission::where('status', 'pending')->count();
-        $aprovadas = Submission::where('status', 'approved')->count();
-        $emAnalise = Submission::where('status', 'under_review')->count();
-        $rejeitadas = Submission::where('status', 'rejected')->count();
+        $totalSubmissoes = Submission::where('is_active', true)->count();
+        $pendentes = Submission::where('is_active', true)->where('status', 'pending')->count();
+        $aprovadas = Submission::where('is_active', true)->where('status', 'approved')->count();
+        $emAnalise = Submission::where('is_active', true)->where('status', 'under_review')->count();
+        $rejeitadas = Submission::where('is_active', true)->where('status', 'rejected')->count();
         
         // Mais Engenharia
-        $maisEngenharia = Submission::where('faz_parte_mais_engenharia', true)->count();
-        $naoMaisEngenharia = Submission::where('faz_parte_mais_engenharia', false)->count();
+        $maisEngenharia = Submission::where('is_active', true)->where('faz_parte_mais_engenharia', true)->count();
+        $naoMaisEngenharia = Submission::where('is_active', true)->where('faz_parte_mais_engenharia', false)->count();
         
         // Diagnósticos completos
-        $diagnosticosCompletos = Submission::whereNotNull('diagnostico_estimulo_concluido_em')
+        $diagnosticosCompletos = Submission::where('is_active', true)
+            ->whereNotNull('diagnostico_estimulo_concluido_em')
             ->whereNotNull('diagnostico_educacao_concluido_em')
             ->whereNotNull('diagnostico_estruturas_concluido_em')
             ->count();
         
         // Médias de pontuação
-        $mediaPontuacaoEstimulo = Submission::where('status', 'approved')
+        $mediaPontuacaoEstimulo = Submission::where('is_active', true)
+            ->where('status', 'approved')
             ->whereNotNull('diagnostico_estimulo_concluido_em')
             ->avg('pontuacao_estimulo') ?? 0;
             
-        $mediaPontuacaoEducacao = Submission::where('status', 'approved')
+        $mediaPontuacaoEducacao = Submission::where('is_active', true)
+            ->where('status', 'approved')
             ->whereNotNull('diagnostico_educacao_concluido_em')
             ->avg('pontuacao_educacao') ?? 0;
             
-        $mediaPontuacaoEstruturas = Submission::where('status', 'approved')
+        $mediaPontuacaoEstruturas = Submission::where('is_active', true)
+            ->where('status', 'approved')
             ->whereNotNull('diagnostico_estruturas_concluido_em')
             ->avg('pontuacao_estruturas') ?? 0;
         
         // Distribuição por regional
-        $porRegional = Submission::select('regional_creapr', DB::raw('count(*) as total'))
+        $porRegional = Submission::where('is_active', true)
+            ->select('regional_creapr', DB::raw('count(*) as total'))
             ->groupBy('regional_creapr')
             ->orderBy('total', 'desc')
             ->get();
         
         // Últimas submissões
-        $ultimasSubmissoes = Submission::with('user')->latest()->take(10)->get();
+        $ultimasSubmissoes = Submission::where('is_active', true)->with('user')->latest()->take(10)->get();
         
         // Timeline de submissões (últimos 6 meses)
-        $timeline = Submission::select(
+        $timeline = Submission::where('is_active', true)
+            ->select(
                 DB::raw("TO_CHAR(created_at, 'YYYY-MM') as mes"),
                 DB::raw('count(*) as total')
             )
@@ -109,9 +118,18 @@ class AdminSubmissionController extends Controller
             'status' => 'nullable|in:pending,approved,under_review,rejected',
             'regional' => 'nullable|string|max:255',
             'mais_engenharia' => 'nullable|in:sim,nao',
+            'status_ativo' => 'nullable|in:ativos,inativos,todos',
         ]);
         
         $query = Submission::with('user');
+        
+        // Filtro de Ativo/Inativo (Padrão: apenas ativos)
+        $statusAtivo = $request->input('status_ativo', 'ativos');
+        if ($statusAtivo === 'ativos') {
+            $query->where('is_active', true);
+        } elseif ($statusAtivo === 'inativos') {
+            $query->where('is_active', false);
+        }
         
         // Filtros
         if ($request->filled('municipio')) {
@@ -146,6 +164,25 @@ class AdminSubmissionController extends Controller
         $submission->load(['user', 'committeeMembers', 'diagnosticAnswers.question']);
         
         return view('admin.submissions.show', compact('submission'));
+    }
+    
+    /**
+     * Alterna o estado ativo/inativo de um município
+     */
+    public function toggleActive(Submission $submission)
+    {
+        $submission->is_active = !$submission->is_active;
+        $submission->save();
+        
+        if (!$submission->is_active) {
+            Log::info("Município {$submission->municipio_nome} (ID: {$submission->id}) foi INATIVADO.");
+            $msg = 'Município INATIVADO com sucesso! Ele foi removido das relações, gráficos e não poderá acessar a plataforma.';
+        } else {
+            Log::info("Município {$submission->municipio_nome} (ID: {$submission->id}) foi REATIVADO.");
+            $msg = 'Município REATIVADO com sucesso!';
+        }
+        
+        return redirect()->back()->with('success', $msg);
     }
     
     /**
@@ -189,6 +226,14 @@ class AdminSubmissionController extends Controller
     {
         $query = Submission::with('user');
         
+        // Filtro de Ativo/Inativo (Padrão: apenas ativos)
+        $statusAtivo = $request->input('status_ativo', 'ativos');
+        if ($statusAtivo === 'ativos') {
+            $query->where('is_active', true);
+        } elseif ($statusAtivo === 'inativos') {
+            $query->where('is_active', false);
+        }
+        
         // Aplicar filtros
         if ($request->filled('municipio')) {
             $query->where('municipio_nome', 'like', '%' . $request->municipio . '%');
@@ -218,6 +263,7 @@ class AdminSubmissionController extends Controller
             fputcsv($file, [
                 'Protocolo',
                 'Status',
+                'Ativo',
                 'Município',
                 'Habitantes',
                 'Regional CREA-PR',
@@ -238,6 +284,7 @@ class AdminSubmissionController extends Controller
                 fputcsv($file, [
                     $sub->protocolo,
                     $sub->status,
+                    $sub->is_active ? 'Sim' : 'Não',
                     $sub->municipio_nome,
                     $sub->habitantes_num,
                     $sub->regional_creapr,

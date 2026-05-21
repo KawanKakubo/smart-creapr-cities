@@ -419,9 +419,84 @@
                 @endif
             </div>
 
-            <!-- Coluna Lateral - Painel de Revisão -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-xl shadow-md p-6 sticky top-8">
+            <!-- Coluna Lateral - Painel de Revisão e Exportação -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Card 1: Status & Inativação -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        @if($submission->is_active)
+                            <span class="relative flex h-3 w-3">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                            </span>
+                        @else
+                            <span class="inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                        @endif
+                        Status do Município
+                    </h2>
+                    
+                    <div class="mb-4">
+                        @if($submission->is_active)
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-green-50 text-green-800 border border-green-200">
+                                ✓ MUNICÍPIO ATIVO
+                            </span>
+                            <p class="text-xs text-gray-500 mt-2">
+                                Este município participa de todos os gráficos, médias consolidadas, contagens e relatórios gerais.
+                            </p>
+                        @else
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-red-50 text-red-800 border border-red-200">
+                                ✗ MUNICÍPIO INATIVO
+                            </span>
+                            <p class="text-xs text-gray-500 mt-2">
+                                Este município está inativo. Ele foi excluído de todas as estatísticas, médias gerais, gráficos e exportações consolidadas.
+                            </p>
+                        @endif
+                    </div>
+
+                    <form method="POST" action="{{ route('admin.submissoes.toggleActive', $submission) }}">
+                        @csrf
+                        @method('PATCH')
+                        @if($submission->is_active)
+                            <button type="submit" onclick="return confirm('Deseja realmente inativar este município? Ele deixará de contar nas estatísticas, médias e gráficos.')" class="w-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 font-bold py-2.5 px-4 rounded-lg transition duration-200 text-center text-sm flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" />
+                                </svg>
+                                Inativar Município
+                            </button>
+                        @else
+                            <button type="submit" onclick="return confirm('Deseja reativar este município? Ele voltará a contar nas estatísticas, médias e gráficos.')" class="w-full bg-green-50 hover:bg-green-100 border border-green-200 text-green-700 font-bold py-2.5 px-4 rounded-lg transition duration-200 text-center text-sm flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Reativar Município
+                            </button>
+                        @endif
+                    </form>
+                </div>
+
+                <!-- Card 2: Exportação do Diagnóstico -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Exportar Respostas
+                    </h2>
+                    <p class="text-xs text-gray-500 mb-4">
+                        Faça o download das respostas e da pontuação deste município no diagnóstico formativo.
+                    </p>
+                    <div class="space-y-3">
+                        <a href="{{ route('admin.submissoes.exportAnswersXlsx', $submission) }}" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-lg transition duration-200 text-center text-sm flex items-center justify-center gap-2 shadow shadow-green-500/10">
+                            📊 Exportar para Excel (.xlsx)
+                        </a>
+                        <a href="{{ route('admin.submissoes.exportAnswersPdf', $submission) }}" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-lg transition duration-200 text-center text-sm flex items-center justify-center gap-2 shadow shadow-red-500/10">
+                            📄 Exportar para PDF (.pdf)
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 3: Painel de Revisão -->
+                <div class="bg-white rounded-xl shadow-md p-6">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">Painel de Revisão</h2>
                     
                     <form method="POST" action="{{ route('admin.submissoes.updateStatus', $submission) }}" x-data="{ status: '{{ $submission->status }}' }">

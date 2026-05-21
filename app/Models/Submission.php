@@ -115,9 +115,11 @@ class Submission extends Model
         'status',
         'status_observacao',
         'aprovado_em',
+        'is_active',
     ];
 
     protected $casts = [
+        'is_active' => 'boolean',
         'token_expires_at' => 'datetime',
         'aprovado_em' => 'datetime',
         // Novos timestamps de diagnóstico

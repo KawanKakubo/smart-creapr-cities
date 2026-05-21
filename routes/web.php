@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicFormController;
 use App\Http\Controllers\Admin\AdminSubmissionController;
+use App\Http\Controllers\Admin\AdminEmailController;
+use App\Http\Controllers\Admin\AdminExportController;
 use App\Http\Controllers\Admin\AdminEventsController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\RepositoryController;
@@ -48,9 +50,21 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Gerenciamento de Submissões
     Route::get('/submissoes', [AdminSubmissionController::class, 'index'])->name('submissoes.index');
     Route::get('/submissoes/exportar', [AdminSubmissionController::class, 'export'])->name('submissoes.export');
+    Route::patch('/submissoes/{submission}/toggle-active', [AdminSubmissionController::class, 'toggleActive'])->name('submissoes.toggleActive');
+    Route::get('/submissoes/{submission}/exportar-respostas-xlsx', [AdminExportController::class, 'exportAnswersXlsx'])->name('submissoes.exportAnswersXlsx');
+    Route::get('/submissoes/{submission}/exportar-respostas-pdf', [AdminExportController::class, 'exportAnswersPdf'])->name('submissoes.exportAnswersPdf');
+    
+    // Consolidated exports for all active municipalities answers
+    Route::get('/consolidado/exportar-xlsx', [AdminExportController::class, 'exportConsolidatedAnswersXlsx'])->name('consolidado.exportXlsx');
+    Route::get('/consolidado/exportar-pdf', [AdminExportController::class, 'exportConsolidatedAnswersPdf'])->name('consolidado.exportPdf');
+    
     Route::get('/submissoes/{submission}', [AdminSubmissionController::class, 'show'])->name('submissoes.show');
     Route::patch('/submissoes/{submission}/status', [AdminSubmissionController::class, 'updateStatus'])->name('submissoes.updateStatus');
     Route::patch('/submissoes/{submission}/mais-engenharia', [AdminSubmissionController::class, 'updateMaisEngenharia'])->name('submissoes.updateMaisEngenharia');
+    
+    // Custom Emailing and Communications Campaigns
+    Route::get('/comunicados', [AdminEmailController::class, 'create'])->name('emails.create');
+    Route::post('/comunicados/enviar', [AdminEmailController::class, 'send'])->name('emails.send');
     
     // Configurações do Sistema
     Route::post('/settings/toggle-registration', [AdminSubmissionController::class, 'toggleRegistration'])->name('settings.toggle-registration');

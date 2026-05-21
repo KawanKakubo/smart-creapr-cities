@@ -15,8 +15,18 @@ class EnsureUserIsMunicipality
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user() || $request->user()->role !== 'municipality') {
+        $user = $request->user();
+        if (!$user || $user->role !== 'municipality') {
             return redirect()->route('login')->with('error', 'Acesso negado. Apenas municípios podem acessar esta área.');
+        }
+
+        // Verifica se o município está ativo
+        $submission = $user->submission;
+        if ($submission && !$submission->is_active) {
+            auth()->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('login')->with('error', 'Esta conta de município foi inativada pela administração do CREA-PR.');
         }
 
         return $next($request);

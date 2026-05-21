@@ -40,14 +40,22 @@
     </nav>
 
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <div class="mb-8 flex items-center justify-between">
+        <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">Manifestações de Interesse</h1>
                 <p class="text-gray-600">Gerencie e analise as submissões dos municípios</p>
             </div>
-            <a href="{{ route('admin.submissoes.export', request()->query()) }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg">
-                📥 Exportar CSV
-            </a>
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('admin.consolidado.exportXlsx') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition text-sm flex items-center gap-1.5">
+                    📊 Matriz Geral (Excel)
+                </a>
+                <a href="{{ route('admin.consolidado.exportPdf') }}" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition text-sm flex items-center gap-1.5">
+                    📄 Relatório Geral (PDF)
+                </a>
+                <a href="{{ route('admin.submissoes.export', request()->query()) }}" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition text-sm flex items-center gap-1.5">
+                    📥 Exportar CSV
+                </a>
+            </div>
         </div>
 
         @if(session('success'))
@@ -64,7 +72,7 @@
         <!-- Filtros -->
         <div class="bg-white rounded-xl shadow-md p-6 mb-8">
             <h2 class="text-lg font-bold text-gray-900 mb-4">Filtros</h2>
-            <form method="GET" action="{{ route('admin.submissoes.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <form method="GET" action="{{ route('admin.submissoes.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Município</label>
                     <input type="text" name="municipio" value="{{ request('municipio') }}" placeholder="Nome do município" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -97,6 +105,15 @@
                         <option value="">Todos</option>
                         <option value="sim" {{ request('mais_engenharia') === 'sim' ? 'selected' : '' }}>Sim</option>
                         <option value="nao" {{ request('mais_engenharia') === 'nao' ? 'selected' : '' }}>Não</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Exibição Ativos</label>
+                    <select name="status_ativo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="ativos" {{ request('status_ativo') === 'ativos' || !request('status_ativo') ? 'selected' : '' }}>Apenas Ativos</option>
+                        <option value="inativos" {{ request('status_ativo') === 'inativos' ? 'selected' : '' }}>Apenas Inativos</option>
+                        <option value="todos" {{ request('status_ativo') === 'todos' ? 'selected' : '' }}>Todos</option>
                     </select>
                 </div>
                 
@@ -136,6 +153,9 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 {{ $sub->municipio_nome }}
+                                @if(!$sub->is_active)
+                                    <span class="ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded bg-red-100 text-red-800">Inativo</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                 {{ $sub->regional_creapr }}

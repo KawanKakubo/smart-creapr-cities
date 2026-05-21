@@ -26,6 +26,10 @@
                         Submissões
                     </a>
                     <span class="text-gray-300">|</span>
+                    <a href="{{ route('admin.emails.create') }}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm flex items-center gap-1">
+                        ✉ Compor E-mail
+                    </a>
+                    <span class="text-gray-300">|</span>
                     <a href="{{ route('admin.questions.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">
                         Questões
                     </a>
@@ -90,36 +94,82 @@
             </div>
         @endif
 
-        <!-- Painel de Controle de Inscrições -->
-        <div class="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <!-- Painel de Controle de Inscrições e Ações Avançadas -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Card Controle de Inscrições -->
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 flex flex-col justify-between">
                 <div>
                     <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                         <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
                         </svg>
-                        Controle do Sistema de Inscrições
+                        Inscrições de Municípios
                     </h2>
-                    <p class="text-sm text-gray-500 mt-1">
-                        Gerencie a disponibilidade do formulário de manifestação de interesse dos municípios.
+                    <p class="text-sm text-gray-500 mt-2">
+                        Controle o período de envio de manifestações de interesse dos municípios interessados.
                     </p>
                 </div>
                 
-                <div class="flex items-center gap-4">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ $registrationsBlocked ? 'bg-red-100 text-red-855' : 'bg-green-100 text-green-855' }}">
+                <div class="mt-6 flex items-center justify-between gap-4 border-t pt-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ $registrationsBlocked ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
                         <span class="w-2 h-2 mr-1.5 rounded-full {{ $registrationsBlocked ? 'bg-red-500 animate-pulse' : 'bg-green-500' }}"></span>
-                        {{ $registrationsBlocked ? 'Período Finalizado' : 'Inscrições Abertas' }}
+                        {{ $registrationsBlocked ? 'Bloqueadas' : 'Abertas' }}
                     </span>
 
                     <form action="{{ route('admin.settings.toggle-registration') }}" method="POST" class="inline">
                         @csrf
                         <button type="submit" 
                                 onclick="return confirm('Deseja realmente {{ $registrationsBlocked ? 'ABRIR' : 'BLOQUEAR' }} o sistema de inscrições?')"
-                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded-lg shadow-sm text-white transition-all duration-300 {{ $registrationsBlocked ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' : 'bg-red-600 hover:bg-red-700 focus:ring-red-500' }} focus:outline-none focus:ring-2 focus:ring-offset-2">
-                            {{ $registrationsBlocked ? 'Abrir Inscrições' : 'Finalizar Período' }}
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-xs font-semibold rounded-lg shadow-sm text-white transition-all duration-300 {{ $registrationsBlocked ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700' }} focus:outline-none">
+                            {{ $registrationsBlocked ? 'Permitir Inscrições' : 'Bloquear Inscrições' }}
                         </button>
                     </form>
+                </div>
+            </div>
+
+            <!-- Card Campanhas de E-mail -->
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l8-5.333a2 2 0 012.22 0l8 5.333A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-2.25-1.5a2 2 0 00-2.22 0l-2.25 1.5" />
+                        </svg>
+                        Campanhas de E-mail
+                    </h2>
+                    <p class="text-sm text-gray-500 mt-2">
+                        Envie e-mails com credenciais temporárias automáticas, links da plataforma e tags personalizadas.
+                    </p>
+                </div>
+                
+                <div class="mt-6 border-t pt-4 text-right">
+                    <a href="{{ route('admin.emails.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-xs font-semibold rounded-lg text-white transition shadow shadow-indigo-600/10">
+                        ✉ Abrir Painel de Envio
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card Exportação Geral Consolidada -->
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Matriz Geral Consolidada
+                    </h2>
+                    <p class="text-sm text-gray-500 mt-2">
+                        Exporte relatórios agregados com desempenho de todos os municípios por eixo formativo.
+                    </p>
+                </div>
+                
+                <div class="mt-6 border-t pt-4 flex gap-2">
+                    <a href="{{ route('admin.consolidado.exportXlsx') }}" class="flex-1 inline-flex items-center justify-center px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-xs font-semibold rounded-lg text-white transition shadow shadow-emerald-600/10">
+                        📊 Excel
+                    </a>
+                    <a href="{{ route('admin.consolidado.exportPdf') }}" class="flex-1 inline-flex items-center justify-center px-3 py-2 bg-rose-600 hover:bg-rose-700 text-xs font-semibold rounded-lg text-white transition shadow shadow-rose-600/10">
+                        📄 PDF (A4)
+                    </a>
                 </div>
             </div>
         </div>
