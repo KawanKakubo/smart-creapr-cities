@@ -44,6 +44,11 @@
                         class="text-blue-600 hover:text-blue-800 font-semibold text-sm">
                         Repositório
                     </a>
+                    <span class="text-gray-300">|</span>
+                    <a href="{{ route('admin.users.index') }}" 
+                        class="text-blue-600 hover:text-blue-800 font-semibold text-sm">
+                        Administradores
+                    </a>
                     
                     @auth
                         <div class="text-right">

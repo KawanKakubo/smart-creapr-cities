@@ -34,6 +34,10 @@
                     <a href="{{ route('admin.emails.create') }}" class="text-blue-900 hover:text-blue-950 font-bold text-sm bg-blue-50 px-3 py-1.5 rounded-lg">
                         Enviar E-mail
                     </a>
+                    <span class="text-gray-300">|</span>
+                    <a href="{{ route('admin.users.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">
+                        Administradores
+                    </a>
                     <div class="text-right hidden md:block">
                         <p class="text-sm text-gray-600">{{ Auth::user()->name }}</p>
                         <p class="text-xs text-gray-500">Administrador</p>

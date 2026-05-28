@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminExportController;
 use App\Http\Controllers\Admin\AdminEventsController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\RepositoryController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use Illuminate\Support\Facades\Route;
@@ -79,6 +80,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     
     // Gerenciamento de Repositório de Documentos
     Route::resource('repository', RepositoryController::class)->except(['show']);
+    
+    // Gerenciamento de Administradores (Sem exclusão)
+    Route::resource('users', AdminUserController::class)->except(['destroy', 'show']);
 });
 
 // Rotas do Município (requerem autenticação e role municipality)

@@ -41,6 +41,10 @@
                     <a href="{{ route('admin.repository.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">
                         Repositório
                     </a>
+                    <span class="text-gray-300">|</span>
+                    <a href="{{ route('admin.users.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">
+                        Administradores
+                    </a>
                     <div class="text-right">
                         <p class="text-sm text-gray-600">{{ Auth::user()->name }}</p>
                         <p class="text-xs text-gray-500">Administrador</p>
