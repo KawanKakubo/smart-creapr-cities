@@ -32,6 +32,8 @@ class AdminEmailController extends Controller
      */
     public function send(Request $request)
     {
+        Log::info("Web Email Payload:", $request->all());
+
         $validated = $request->validate([
             'subject' => 'required|string|max:255',
             'body' => 'required|string',
