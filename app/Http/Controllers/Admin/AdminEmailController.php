@@ -38,9 +38,9 @@ class AdminEmailController extends Controller
             'subject' => 'required|string|max:255',
             'body' => 'required|string',
             'recipient_type' => 'required|in:all,approved,pending,selected,custom',
-            'selected_municipios' => 'required_if:recipient_type,selected|array',
+            'selected_municipios' => 'exclude_unless:recipient_type,selected|required|array',
             'selected_municipios.*' => 'exists:submissions,id',
-            'custom_email' => 'required_if:recipient_type,custom|string',
+            'custom_email' => 'exclude_unless:recipient_type,custom|required|string',
         ]);
 
         $sentCount = 0;
