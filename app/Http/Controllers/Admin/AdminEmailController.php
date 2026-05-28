@@ -133,6 +133,8 @@ class AdminEmailController extends Controller
 
             $recipients = $query->get();
 
+            Log::info("Web Email: Recipient Type: " . $validated['recipient_type'] . ", Count: " . $recipients->count());
+
             if ($recipients->isEmpty()) {
                 return redirect()->back()->with('error', 'Nenhum município ativo atende aos critérios selecionados.');
             }
