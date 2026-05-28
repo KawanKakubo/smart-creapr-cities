@@ -154,7 +154,8 @@ class AdminEmailController extends Controller
                             continue;
                         }
 
-                        $user = $submission->user;
+                        // Procura primeiro pelo e-mail para evitar duplicação e erro de chave única
+                        $user = User::where('email', $normalizedEmail)->first();
 
                         if (!$user) {
                             $user = User::create([
@@ -165,15 +166,19 @@ class AdminEmailController extends Controller
                                 'is_temporary_password' => true,
                                 'must_change_password' => true,
                             ]);
-
-                            $submission->user_id = $user->id;
-                            $submission->faz_parte_mais_engenharia = true;
-                            $submission->save();
                         } else {
+                            $user->name = $submission->responsavel_nome;
                             $user->password = Hash::make($temporaryPassword);
                             $user->is_temporary_password = true;
                             $user->must_change_password = true;
                             $user->save();
+                        }
+
+                        // Garante o vínculo correto com o usuário e ativação no Mais Engenharia
+                        if ($submission->user_id !== $user->id || !$submission->faz_parte_mais_engenharia) {
+                            $submission->user_id = $user->id;
+                            $submission->faz_parte_mais_engenharia = true;
+                            $submission->save();
                         }
                     }
 
