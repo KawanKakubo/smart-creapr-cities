@@ -20,7 +20,7 @@ class AdminEmailController extends Controller
     public function create()
     {
         // Pega apenas municípios ativos
-        $municipios = Submission::where('is_active', true)
+        $municipios = Submission::active()
             ->orderBy('municipio_nome')
             ->get();
 
@@ -60,7 +60,7 @@ class AdminEmailController extends Controller
                     $temporaryPassword = null;
                     
                     // Procura se esse e-mail já pertence a alguma submissão ativa para preencher os dados reais do município
-                    $submission = Submission::where('is_active', true)
+                    $submission = Submission::active()
                         ->where('responsavel_email', 'ilike', $email)
                         ->first();
 
@@ -121,7 +121,7 @@ class AdminEmailController extends Controller
 
         } else {
             // Processa municípios da base
-            $query = Submission::where('is_active', true);
+            $query = Submission::active();
 
             if ($validated['recipient_type'] === 'approved') {
                 $query->where('status', 'approved');

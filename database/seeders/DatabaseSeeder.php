@@ -88,6 +88,7 @@ class DatabaseSeeder extends Seeder
                     'status' => 'pending',
                     'status_observacao' => null,
                     'aprovado_em' => null,
+                    'is_active' => true,
                     'setores_economicos' => [],
                     'regional_creapr' => null,
                     'faz_parte_mais_engenharia' => false,

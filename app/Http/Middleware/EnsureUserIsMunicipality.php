@@ -22,7 +22,7 @@ class EnsureUserIsMunicipality
 
         // Verifica se o município está ativo
         $submission = $user->submission;
-        if ($submission && !$submission->is_active) {
+        if ($submission && $submission->is_active === false) {
             auth()->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();

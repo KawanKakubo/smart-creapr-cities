@@ -261,4 +261,14 @@ class Submission extends Model
     {
         return $this->status === 'rejected';
     }
+
+    /**
+     * Scope para filtrar municípios ativos (is_active = true ou NULL)
+     */
+    public function scopeActive($query)
+    {
+        return $query->where(function($q) {
+            $q->where('is_active', true)->orWhereNull('is_active');
+        });
+    }
 }

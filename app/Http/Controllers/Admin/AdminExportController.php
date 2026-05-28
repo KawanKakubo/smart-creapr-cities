@@ -252,7 +252,7 @@ class AdminExportController extends Controller
      */
     public function exportConsolidatedAnswersXlsx()
     {
-        $submissions = Submission::where('is_active', true)
+        $submissions = Submission::active()
             ->orderBy('municipio_nome')
             ->get();
 
@@ -352,7 +352,7 @@ class AdminExportController extends Controller
      */
     public function exportConsolidatedAnswersPdf()
     {
-        $submissions = Submission::where('is_active', true)
+        $submissions = Submission::active()
             ->orderBy('municipio_nome')
             ->get();
 
