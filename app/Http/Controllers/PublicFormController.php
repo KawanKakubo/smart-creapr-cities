@@ -41,7 +41,7 @@ class PublicFormController extends Controller
         // Validação básica dos campos obrigatórios
         $validated = $request->validate([
             'municipio_nome' => 'required|string|max:255',
-            'habitantes_num' => 'required|integer|min:1',
+            'habitantes_num' => 'required|integer|min:1|max:2147483647',
             'regional_creapr' => 'required|string|max:255',
             'setores_economicos' => 'required|array|min:1',
             'setores_economicos.*' => 'string|max:255',
