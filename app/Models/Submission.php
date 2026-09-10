@@ -214,6 +214,18 @@ class Submission extends Model
                $this->diagnostico_estruturas_concluido_em !== null;
     }
 
+    public function diagnosticsStatus(): string
+    {
+        $completed = collect(['estimulo', 'educacao', 'estruturas'])
+            ->filter(fn (string $category) => $this->{"diagnostico_{$category}_concluido_em"} !== null)
+            ->count();
+        $started = collect(['estimulo', 'educacao', 'estruturas'])
+            ->filter(fn (string $category) => $this->{"diagnostico_{$category}_iniciado_em"} !== null)
+            ->count();
+
+        return $completed === 3 ? 'completo' : ($started > 0 ? 'parcial' : 'nao_iniciado');
+    }
+
     /**
      * Verifica se pode acessar o diagnóstico (precisa estar aprovado)
      */

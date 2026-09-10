@@ -118,6 +118,7 @@ class AdminSubmissionController extends Controller
             'status' => 'nullable|in:pending,approved,under_review,rejected',
             'regional' => 'nullable|string|max:255',
             'mais_engenharia' => 'nullable|in:sim,nao',
+            'diagnostico' => 'nullable|in:completo,parcial,nao_iniciado',
             'status_ativo' => 'nullable|in:ativos,inativos,todos',
         ]);
         
@@ -146,6 +147,26 @@ class AdminSubmissionController extends Controller
         
         if ($request->filled('mais_engenharia')) {
             $query->where('faz_parte_mais_engenharia', $request->mais_engenharia === 'sim');
+        }
+
+        if ($request->input('diagnostico') === 'completo') {
+            $query->whereNotNull('diagnostico_estimulo_concluido_em')
+                ->whereNotNull('diagnostico_educacao_concluido_em')
+                ->whereNotNull('diagnostico_estruturas_concluido_em');
+        } elseif ($request->input('diagnostico') === 'parcial') {
+            $query->where(function ($statusQuery) {
+                $statusQuery->whereNotNull('diagnostico_estimulo_iniciado_em')
+                    ->orWhereNotNull('diagnostico_educacao_iniciado_em')
+                    ->orWhereNotNull('diagnostico_estruturas_iniciado_em');
+            })->where(function ($statusQuery) {
+                $statusQuery->whereNull('diagnostico_estimulo_concluido_em')
+                    ->orWhereNull('diagnostico_educacao_concluido_em')
+                    ->orWhereNull('diagnostico_estruturas_concluido_em');
+            });
+        } elseif ($request->input('diagnostico') === 'nao_iniciado') {
+            $query->whereNull('diagnostico_estimulo_iniciado_em')
+                ->whereNull('diagnostico_educacao_iniciado_em')
+                ->whereNull('diagnostico_estruturas_iniciado_em');
         }
         
         $submissions = $query->latest()->paginate(20)->withQueryString();

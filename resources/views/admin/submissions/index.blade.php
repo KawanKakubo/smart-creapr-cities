@@ -109,6 +109,16 @@
                 </div>
 
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Diagnóstico</label>
+                    <select name="diagnostico" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Todos</option>
+                        <option value="completo" {{ request('diagnostico') === 'completo' ? 'selected' : '' }}>Totalmente concluído</option>
+                        <option value="parcial" {{ request('diagnostico') === 'parcial' ? 'selected' : '' }}>Parcialmente concluído</option>
+                        <option value="nao_iniciado" {{ request('diagnostico') === 'nao_iniciado' ? 'selected' : '' }}>Não iniciado</option>
+                    </select>
+                </div>
+
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Exibição Ativos</label>
                     <select name="status_ativo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="ativos" {{ request('status_ativo') === 'ativos' || !request('status_ativo') ? 'selected' : '' }}>Apenas Ativos</option>
@@ -167,7 +177,7 @@
                                 @if($sub->faz_parte_mais_engenharia)
                                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Sim</span>
                                 @else
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Não</span>
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">Não participante</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -182,6 +192,9 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <div class="mb-1 text-xs font-semibold {{ $sub->diagnosticsStatus() === 'completo' ? 'text-green-700' : ($sub->diagnosticsStatus() === 'parcial' ? 'text-amber-700' : 'text-gray-500') }}">
+                                    {{ $sub->diagnosticsStatus() === 'completo' ? 'Concluído' : ($sub->diagnosticsStatus() === 'parcial' ? 'Parcial' : 'Não iniciado') }}
+                                </div>
                                 @if($sub->getTotalScore() > 0)
                                     <span class="font-bold text-purple-600">{{ $sub->getTotalScore() }}/300</span>
                                 @else

@@ -121,7 +121,7 @@
                     Compor Comunicado
                 </h2>
 
-                <form id="emailForm" method="POST" action="{{ route('admin.emails.send') }}">
+                <form id="emailForm" method="POST" action="{{ route('admin.emails.send') }}" enctype="multipart/form-data">
                     @csrf
                                    <!-- Seleção de Destinatários -->
                     <div class="mb-6">
@@ -221,6 +221,12 @@
                         <textarea id="body" name="body" required rows="10" placeholder="Olá {responsavel_nome}, escreva a mensagem aqui..." class="w-full border-gray-300 rounded-xl p-3 focus:ring-blue-500 focus:border-blue-500 font-sans"></textarea>
                     </div>
 
+                    <div class="mb-6">
+                        <label for="attachments" class="block text-sm font-bold text-gray-700 mb-2">Anexos</label>
+                        <input id="attachments" name="attachments[]" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.zip" class="w-full border border-gray-300 rounded-xl p-2.5 text-sm">
+                        <p class="text-xs text-gray-500 mt-1.5">Até 5 arquivos, com 10 MB por arquivo.</p>
+                    </div>
+
                     <div class="flex items-center justify-between gap-4">
                         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-blue-500/20 transition-all text-center flex items-center justify-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -281,6 +287,49 @@
                 </div>
             </div>
         </div>
+
+        <section class="mt-8 bg-white rounded-2xl shadow-md border border-gray-100 p-6">
+            <div class="flex items-center justify-between gap-4 mb-5">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Histórico de campanhas</h2>
+                    <p class="text-sm text-gray-500 mt-1">Consulte os disparos realizados e reenvie uma campanha mantendo os mesmos destinatários.</p>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Data</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Assunto</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Resultado</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Anexos</th>
+                            <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse($campaigns as $campaign)
+                            <tr>
+                                <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ $campaign->created_at->format('d/m/Y H:i') }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-900 font-medium">{{ $campaign->subject }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600">{{ $campaign->sent_count }} enviados @if($campaign->failed_count) <span class="text-red-600">/ {{ $campaign->failed_count }} falhos</span>@endif</td>
+                                <td class="px-4 py-3 text-sm text-gray-600">{{ count($campaign->attachments ?? []) }}</td>
+                                <td class="px-4 py-3 text-right">
+                                    <form method="POST" action="{{ route('admin.emails.resend', $campaign) }}" onsubmit="return confirm('Deseja reenviar esta campanha aos mesmos destinatários?');">
+                                        @csrf
+                                        <button type="submit" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">Reenviar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="5" class="px-4 py-8 text-center text-sm text-gray-500">Nenhuma campanha enviada ainda.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            @if($campaigns->hasPages())
+                <div class="mt-4">{{ $campaigns->links() }}</div>
+            @endif
+        </section>
     </div>
 
     <!-- Scripting for UI and Live Preview -->

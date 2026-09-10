@@ -67,6 +67,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Custom Emailing and Communications Campaigns
     Route::get('/comunicados', [AdminEmailController::class, 'create'])->name('emails.create');
     Route::post('/comunicados/enviar', [AdminEmailController::class, 'send'])->name('emails.send');
+    Route::post('/comunicados/{campaign}/reenviar', [AdminEmailController::class, 'resend'])->name('emails.resend');
     
     // Configurações do Sistema
     Route::post('/settings/toggle-registration', [AdminSubmissionController::class, 'toggleRegistration'])->name('settings.toggle-registration');

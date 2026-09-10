@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Submission;
+use App\Models\EmailCampaign;
 use App\Models\User;
 use App\Mail\CustomMunicipalityEmail;
 use Illuminate\Http\Request;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile;
 
 class AdminEmailController extends Controller
 {
@@ -24,7 +26,9 @@ class AdminEmailController extends Controller
             ->orderBy('municipio_nome')
             ->get();
 
-        return view('admin.emails.create', compact('municipios'));
+        $campaigns = EmailCampaign::latest()->paginate(10, ['*'], 'campaign_page');
+
+        return view('admin.emails.create', compact('municipios', 'campaigns'));
     }
 
     /**
@@ -41,9 +45,16 @@ class AdminEmailController extends Controller
             'selected_municipios' => 'exclude_unless:recipient_type,selected|required|array',
             'selected_municipios.*' => 'exists:submissions,id',
             'custom_email' => 'exclude_unless:recipient_type,custom|required|string',
+            'attachments' => 'nullable|array|max:5',
+            'attachments.*' => 'file|max:10240|mimes:pdf,doc,docx,xls,xlsx,csv,png,jpg,jpeg,zip',
         ]);
 
         $sentCount = 0;
+        $failedCount = 0;
+        $campaignRecipients = [];
+        $attachmentPaths = collect($request->file('attachments', []))
+            ->map(fn (UploadedFile $file) => $file->store('email-attachments', 'local'))
+            ->all();
         $hasPasswordTag = Str::contains($validated['body'], '{senha_municipio}') || Str::contains($validated['subject'], '{senha_municipio}');
 
         if ($validated['recipient_type'] === 'custom') {
@@ -113,10 +124,12 @@ class AdminEmailController extends Controller
                     $resolvedSubject = str_replace(array_keys($tags), array_values($tags), $validated['subject']);
                     $resolvedBody = str_replace(array_keys($tags), array_values($tags), $validated['body']);
 
-                    Mail::to($email)->send(new CustomMunicipalityEmail($resolvedSubject, $resolvedBody));
+                    Mail::to($email)->send(new CustomMunicipalityEmail($resolvedSubject, $resolvedBody, $attachmentPaths));
                     $sentCount++;
+                    $campaignRecipients[] = ['email' => $email, 'subject' => $resolvedSubject, 'body' => $resolvedBody];
 
                 } catch (\Exception $e) {
+                    $failedCount++;
                     Log::error("Erro ao enviar e-mail customizado para {$email}: " . $e->getMessage());
                 }
             }
@@ -193,15 +206,52 @@ class AdminEmailController extends Controller
                     $resolvedSubject = str_replace(array_keys($tags), array_values($tags), $validated['subject']);
                     $resolvedBody = str_replace(array_keys($tags), array_values($tags), $validated['body']);
 
-                    Mail::to($submission->responsavel_email)->send(new CustomMunicipalityEmail($resolvedSubject, $resolvedBody));
+                    Mail::to($submission->responsavel_email)->send(new CustomMunicipalityEmail($resolvedSubject, $resolvedBody, $attachmentPaths));
                     $sentCount++;
+                    $campaignRecipients[] = ['email' => $submission->responsavel_email, 'subject' => $resolvedSubject, 'body' => $resolvedBody];
 
                 } catch (\Exception $e) {
+                    $failedCount++;
                     Log::error("Erro ao enviar e-mail customizado para a submissão ID {$submission->id}: " . $e->getMessage());
                 }
             }
         }
 
+        EmailCampaign::create([
+            'created_by' => auth()->id(),
+            'subject' => $validated['subject'],
+            'body' => $validated['body'],
+            'recipient_type' => $validated['recipient_type'],
+            'recipients' => $campaignRecipients,
+            'attachments' => $attachmentPaths,
+            'sent_count' => $sentCount,
+            'failed_count' => $failedCount,
+        ]);
+
         return redirect()->route('admin.emails.create')->with('success', "Campanha finalizada! {$sentCount} e-mail(s) enviado(s) com sucesso.");
+    }
+
+    public function resend(EmailCampaign $campaign)
+    {
+        $sentCount = 0;
+        $failedCount = 0;
+
+        foreach ($campaign->recipients ?? [] as $recipient) {
+            try {
+                Mail::to($recipient['email'])->send(new CustomMunicipalityEmail(
+                    $recipient['subject'],
+                    $recipient['body'],
+                    $campaign->attachments ?? []
+                ));
+                $sentCount++;
+            } catch (\Exception $e) {
+                $failedCount++;
+                Log::error("Erro ao reenviar campanha {$campaign->id} para {$recipient['email']}: " . $e->getMessage());
+            }
+        }
+
+        $campaign->update(['sent_count' => $sentCount, 'failed_count' => $failedCount]);
+
+        return redirect()->route('admin.emails.create')->with('success', "Campanha reenviada! {$sentCount} e-mail(s) enviado(s) com sucesso.");
     }
 }

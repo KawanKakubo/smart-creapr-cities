@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Queue\SerializesModels;
 
 class CustomMunicipalityEmail extends Mailable implements ShouldQueue
@@ -15,14 +16,16 @@ class CustomMunicipalityEmail extends Mailable implements ShouldQueue
 
     public $emailSubject;
     public $bodyContent;
+    public $attachmentPaths;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($subject, $bodyContent)
+    public function __construct($subject, $bodyContent, array $attachmentPaths = [])
     {
         $this->emailSubject = $subject;
         $this->bodyContent = $bodyContent;
+        $this->attachmentPaths = $attachmentPaths;
     }
 
     /**
@@ -52,6 +55,8 @@ class CustomMunicipalityEmail extends Mailable implements ShouldQueue
      */
     public function attachments(): array
     {
-        return [];
+        return collect($this->attachmentPaths)
+            ->map(fn (string $path) => Attachment::fromStorageDisk('local', $path))
+            ->all();
     }
 }
