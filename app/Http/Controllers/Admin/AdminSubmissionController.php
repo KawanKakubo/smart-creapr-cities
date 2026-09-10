@@ -328,102 +328,38 @@ class AdminSubmissionController extends Controller
      */
     public function updateMaisEngenharia(Request $request, Submission $submission)
     {
-        $originalState = $submission->faz_parte_mais_engenharia;
-        $newState = !$originalState; // Toggle state
-
+        $newState = !$submission->faz_parte_mais_engenharia;
         $submission->faz_parte_mais_engenharia = $newState;
-
-        if ($newState) {
-            // Se está ativando Mais Engenharia:
-            // Cria o usuário se não existir, envia e-mail com credenciais
-            try {
-                $normalizedResponsibleEmail = Str::lower(trim($submission->responsavel_email));
-
-                if (empty($submission->responsavel_email) || empty($submission->responsavel_nome)) {
-                    return redirect()->back()->with('error', 'Não é possível ativar o Mais Engenharia porque os dados de responsável da manifestação estão incompletos.');
-                }
-
-                // Verifica se o usuário já existe com esse email
-                $user = User::where('email', $normalizedResponsibleEmail)->first();
-                $temporaryPassword = null;
-                $isNewUser = false;
-
-                if ($user) {
-                    // Usuário já existe - se tem senha temporária, gera uma nova
-                    if ($user->is_temporary_password || $user->must_change_password) {
-                        $temporaryPassword = Str::random(12) . rand(10, 99);
-                        $newPasswordHash = Hash::make($temporaryPassword);
-                    }
-                } else {
-                    // Cria novo usuário
-                    $isNewUser = true;
-                    $temporaryPassword = Str::random(12) . rand(10, 99);
-                    
-                    $user = User::create([
-                        'name' => $submission->responsavel_nome,
-                        'email' => $normalizedResponsibleEmail,
-                        'password' => Hash::make($temporaryPassword),
-                        'role' => 'municipality',
-                        'is_temporary_password' => true,
-                        'must_change_password' => true,
-                    ]);
-                }
-
-                // Vincula usuário à submissão
-                $submission->user_id = $user->id;
-                $submission->save();
-
-                // Envia e-mail
-                if ($temporaryPassword) {
-                    Mail::to($submission->responsavel_email)->send(
-                        new CredentialsEmail($user, $temporaryPassword, $submission->protocolo, $submission->municipio_nome)
-                    );
-
-                    if (isset($newPasswordHash)) {
-                        $user->password = $newPasswordHash;
-                        $user->is_temporary_password = true;
-                        $user->must_change_password = true;
-                        $user->save();
-                    }
-                } else {
-                    Mail::to($submission->responsavel_email)->send(
-                        new ConfirmationEmail($submission->protocolo, $submission->municipio_nome)
-                    );
-                }
-
-            } catch (\Exception $e) {
-                Log::error('Erro ao ativar Mais Engenharia pelo Admin', [
-                    'submission_id' => $submission->id,
-                    'error' => $e->getMessage()
-                ]);
-                // Reverte estado
-                $submission->faz_parte_mais_engenharia = false;
-                $submission->user_id = null;
-                $submission->save();
-                
-                return redirect()->back()->with('error', 'Erro ao processar ativação: ' . $e->getMessage());
-            }
-        } else {
-            // Se está desativando Mais Engenharia:
-            // Remove o vínculo do usuário da submissão.
-            $associatedUser = $submission->user;
-            if ($associatedUser) {
-                $submission->user_id = null;
-                $submission->save();
-
-                // Deleta o usuário se ele não tiver outras submissões associadas
-                $otherSubmissions = Submission::where('user_id', $associatedUser->id)->count();
-                if ($otherSubmissions === 0) {
-                    $associatedUser->delete();
-                }
-            }
-            $submission->save();
-        }
+        $submission->save();
 
         $msg = $newState 
-            ? 'Município ADICIONADO ao programa Mais Engenharia com sucesso! As credenciais de acesso foram geradas/enviadas.' 
-            : 'Município REMOVIDO do programa Mais Engenharia com sucesso! A conta de acesso associada foi revogada.';
+            ? 'Município ADICIONADO ao programa Mais Engenharia com sucesso!' 
+            : 'Município REMOVIDO do programa Mais Engenharia com sucesso!';
 
         return redirect()->back()->with('success', $msg);
+    }
+
+    /**
+     * Desbloqueia um eixo do diagnóstico para permitir reenvio.
+     */
+    public function unlockDiagnostic(Request $request, Submission $submission, $category)
+    {
+        $validCategories = ['estimulo', 'educacao', 'estruturas'];
+        
+        if (!in_array($category, $validCategories)) {
+            return redirect()->back()->with('error', 'Categoria de diagnóstico inválida.');
+        }
+
+        // Limpa a data de conclusão
+        $completedField = "diagnostico_{$category}_concluido_em";
+        $submission->$completedField = null;
+        
+        // Zera temporariamente a pontuação
+        $scoreField = "pontuacao_{$category}";
+        $submission->$scoreField = 0;
+        
+        $submission->save();
+
+        return redirect()->back()->with('success', "O eixo de " . ucfirst($category) . " foi desbloqueado com sucesso! O município agora pode continuar o preenchimento sem perder as respostas anteriores.");
     }
 }

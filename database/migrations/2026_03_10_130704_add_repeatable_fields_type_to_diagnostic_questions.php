@@ -12,11 +12,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Remove a constraint antiga
-        DB::statement('ALTER TABLE diagnostic_questions DROP CONSTRAINT IF EXISTS diagnostic_questions_type_check');
-        
-        // Adiciona a nova constraint com o tipo 'repeatable_fields'
-        DB::statement("ALTER TABLE diagnostic_questions ADD CONSTRAINT diagnostic_questions_type_check CHECK (type IN ('yes_no', 'yes_no_evidence', 'checkbox', 'multiple_input', 'repeatable_fields', 'text'))");
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            // Remove a constraint antiga
+            DB::statement('ALTER TABLE diagnostic_questions DROP CONSTRAINT IF EXISTS diagnostic_questions_type_check');
+            
+            // Adiciona a nova constraint com o tipo 'repeatable_fields'
+            DB::statement("ALTER TABLE diagnostic_questions ADD CONSTRAINT diagnostic_questions_type_check CHECK (type IN ('yes_no', 'yes_no_evidence', 'checkbox', 'multiple_input', 'repeatable_fields', 'text'))");
+        }
     }
 
     /**
@@ -24,10 +26,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Remove a constraint com o novo tipo
-        DB::statement('ALTER TABLE diagnostic_questions DROP CONSTRAINT IF EXISTS diagnostic_questions_type_check');
-        
-        // Restaura a constraint antiga sem 'repeatable_fields'
-        DB::statement("ALTER TABLE diagnostic_questions ADD CONSTRAINT diagnostic_questions_type_check CHECK (type IN ('yes_no', 'yes_no_evidence', 'checkbox', 'multiple_input', 'text'))");
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            // Remove a constraint com o novo tipo
+            DB::statement('ALTER TABLE diagnostic_questions DROP CONSTRAINT IF EXISTS diagnostic_questions_type_check');
+            
+            // Restaura a constraint antiga sem 'repeatable_fields'
+            DB::statement("ALTER TABLE diagnostic_questions ADD CONSTRAINT diagnostic_questions_type_check CHECK (type IN ('yes_no', 'yes_no_evidence', 'checkbox', 'multiple_input', 'text'))");
+        }
     }
 };

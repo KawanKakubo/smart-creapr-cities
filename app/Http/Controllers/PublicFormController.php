@@ -139,165 +139,103 @@ class PublicFormController extends Controller
         // Cria a submissão
         $submission = Submission::create($validated);
         
-        // FLUXO DIFERENCIADO: Mais Engenharia Sim/Não
-        if ($validated['faz_parte_mais_engenharia']) {
-            // FLUXO COMPLETO: Cria usuário e dá acesso à plataforma
-            
-            try {
-                $normalizedResponsibleEmail = Str::lower(trim($validated['responsavel_email']));
+        // FLUXO ÚNICO (Nova regra): Todos os municípios recebem conta de acesso ao dashboard
+        try {
+            $normalizedResponsibleEmail = Str::lower(trim($validated['responsavel_email']));
 
-                // Verifica se o usuário já existe com esse email
-                $user = User::where('email', $normalizedResponsibleEmail)->first();
-                $isNewUser = false;
-                
-                if ($user) {
-                    // Usuário já existe - verifica se precisa resetar senha
-                    if ($user->is_temporary_password || $user->must_change_password) {
-                        // Usuário tem senha temporária - gera nova senha mas SÓ salva após email ser enviado
-                        $temporaryPassword = Str::random(12) . rand(10, 99);
-                        $newPasswordHash = Hash::make($temporaryPassword);
-                        
-                        Log::info('Senha temporária gerada para usuário existente (aguardando envio de email)', [
-                            'protocolo' => $protocolo,
-                            'user_id' => $user->id,
-                            'email' => $user->email,
-                        ]);
-                    } else {
-                        // Usuário já definiu senha própria - não gera nova
-                        $temporaryPassword = null;
-                        
-                        Log::info('Usuário existente vinculado (senha já definida)', [
-                            'protocolo' => $protocolo,
-                            'user_id' => $user->id,
-                            'email' => $user->email,
-                        ]);
-                    }
-                } else {
-                    // Cria novo usuário
-                    $isNewUser = true;
+            // Verifica se o usuário já existe com esse email
+            $user = User::where('email', $normalizedResponsibleEmail)->first();
+            $isNewUser = false;
+            
+            if ($user) {
+                // Usuário já existe - verifica se precisa resetar senha
+                if ($user->is_temporary_password || $user->must_change_password) {
+                    // Usuário tem senha temporária - gera nova senha mas SÓ salva após email ser enviado
                     $temporaryPassword = Str::random(12) . rand(10, 99);
+                    $newPasswordHash = Hash::make($temporaryPassword);
                     
-                    $user = User::create([
-                        'name' => $validated['responsavel_nome'],
-                        'email' => $normalizedResponsibleEmail,
-                        'password' => Hash::make($temporaryPassword),
-                        'role' => 'municipality',
-                        'is_temporary_password' => true,
-                        'must_change_password' => true,
+                    Log::info('Senha temporária gerada para usuário existente (aguardando envio de email)', [
+                        'protocolo' => $protocolo,
+                        'user_id' => $user->id,
+                        'email' => $user->email,
                     ]);
+                } else {
+                    // Usuário já definiu senha própria - não gera nova
+                    $temporaryPassword = null;
                     
-                    Log::info('Novo usuário criado para Mais Engenharia', [
+                    Log::info('Usuário existente vinculado (senha já definida)', [
                         'protocolo' => $protocolo,
                         'user_id' => $user->id,
                         'email' => $user->email,
                     ]);
                 }
+            } else {
+                // Cria novo usuário
+                $isNewUser = true;
+                $temporaryPassword = Str::random(12) . rand(10, 99);
                 
-                // Vincula usuário à submission
-                $submission->user_id = $user->id;
-                $submission->save();
+                $user = User::create([
+                    'name' => $validated['responsavel_nome'],
+                    'email' => $normalizedResponsibleEmail,
+                    'password' => Hash::make($temporaryPassword),
+                    'role' => 'municipality',
+                    'is_temporary_password' => true,
+                    'must_change_password' => true,
+                ]);
                 
-                // Envia email apropriado
-                try {
-                    if ($temporaryPassword) {
-                        // Novo usuário OU senha resetada - envia credenciais
-                        Mail::to($validated['responsavel_email'])->send(
-                            new CredentialsEmail($user, $temporaryPassword, $protocolo, $validated['municipio_nome'])
-                        );
+                Log::info('Novo usuário criado para acesso ao dashboard', [
+                    'protocolo' => $protocolo,
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                ]);
+            }
+            
+            // Vincula usuário à submission
+            $submission->user_id = $user->id;
+            $submission->save();
+            
+            // Envia email apropriado
+            try {
+                if ($temporaryPassword) {
+                    // Novo usuário OU senha resetada - envia credenciais
+                    Mail::to($validated['responsavel_email'])->send(
+                        new CredentialsEmail($user, $temporaryPassword, $protocolo, $validated['municipio_nome'])
+                    );
 
-                        // Só atualiza a senha no BD após o email ser enviado com sucesso
-                        // (evita que falha de email bloqueie o usuário com uma senha desconhecida)
-                        if (isset($newPasswordHash)) {
-                            $user->password = $newPasswordHash;
-                            $user->is_temporary_password = true;
-                            $user->must_change_password = true;
-                            $user->save();
-                            Log::info('Senha temporária regenerada e email enviado com sucesso', [
-                                'protocolo' => $protocolo,
-                                'user_id' => $user->id,
-                                'email' => $user->email,
-                            ]);
-                        } else {
-                            Log::info('Email de credenciais enviado para novo usuário', [
-                                'protocolo' => $protocolo,
-                                'email' => $user->email,
-                                'is_new_user' => $isNewUser,
-                            ]);
-                        }
-                    } else {
-                        // Usuário existente com senha própria - envia apenas confirmação
-                        Mail::to($validated['responsavel_email'])->send(
-                            new ConfirmationEmail($protocolo, $validated['municipio_nome'])
-                        );
-                        Log::info('Email de confirmação enviado para usuário com senha definida', [
+                    // Só atualiza a senha no BD após o email ser enviado com sucesso
+                    if (isset($newPasswordHash)) {
+                        $user->password = $newPasswordHash;
+                        $user->is_temporary_password = true;
+                        $user->must_change_password = true;
+                        $user->save();
+                        Log::info('Senha temporária regenerada e email enviado com sucesso', [
                             'protocolo' => $protocolo,
+                            'user_id' => $user->id,
                             'email' => $user->email,
                         ]);
+                    } else {
+                        Log::info('Email de credenciais enviado para novo usuário', [
+                            'protocolo' => $protocolo,
+                            'email' => $user->email,
+                            'is_new_user' => $isNewUser,
+                        ]);
                     }
-                } catch (\Exception $e) {
-                    Log::error('Erro ao enviar email', [
-                        'protocolo' => $protocolo,
-                        'error' => $e->getMessage(),
-                    ]);
-                }
-                
-                // Retorna JSON com sucesso
-                return response()->json([
-                    'success' => true,
-                    'redirect' => route('inscricao.sucesso', [
-                        'protocolo' => $protocolo,
-                        'token' => $access_token
-                    ]),
-                    'message' => $temporaryPassword ? 'Usuário criado com sucesso!' : 'Manifestação registrada com sucesso!'
-                ]);
-                
-            } catch (\Exception $e) {
-                // Erro ao criar usuário - mas submission já foi criada
-                Log::error('Erro no fluxo Mais Engenharia', [
-                    'protocolo' => $protocolo,
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-                
-                // Retorna sucesso mesmo assim (submission já existe)
-                return response()->json([
-                    'success' => true,
-                    'redirect' => route('inscricao.sucesso', [
-                        'protocolo' => $protocolo,
-                        'token' => $access_token
-                    ]),
-                    'message' => 'Manifestação registrada. Entraremos em contato.'
-                ]);
-            }
-            
-        } else {
-            // FLUXO SIMPLES: Apenas registra manifestação (sem criação de usuário)
-            
-            // Envia email de confirmação (sem credenciais)
-            try {
-                // Usa o email do responsável ou do município como fallback
-                $emailDestino = $validated['responsavel_email'] ?? $validated['municipio_email'] ?? null;
-                
-                if ($emailDestino) {
-                    Mail::to($emailDestino)->send(
+                } else {
+                    // Usuário existente com senha própria - envia apenas confirmação
+                    Mail::to($validated['responsavel_email'])->send(
                         new ConfirmationEmail($protocolo, $validated['municipio_nome'])
                     );
-                    Log::info('Email de confirmação enviado', [
+                    Log::info('Email de confirmação enviado para usuário com senha definida', [
                         'protocolo' => $protocolo,
-                        'email' => $emailDestino,
+                        'email' => $user->email,
                     ]);
                 }
             } catch (\Exception $e) {
-                Log::error('Erro ao enviar email de confirmação', [
+                Log::error('Erro ao enviar email de credenciais', [
                     'protocolo' => $protocolo,
                     'error' => $e->getMessage(),
                 ]);
             }
-            
-            Log::info('Manifestação registrada (não Mais Engenharia)', [
-                'protocolo' => $protocolo,
-                'municipio' => $validated['municipio_nome'],
-            ]);
             
             // Retorna JSON com sucesso
             return response()->json([
@@ -305,7 +243,26 @@ class PublicFormController extends Controller
                 'redirect' => route('inscricao.sucesso', [
                     'protocolo' => $protocolo,
                     'token' => $access_token
-                ])
+                ]),
+                'message' => $temporaryPassword ? 'Usuário criado com sucesso!' : 'Manifestação registrada com sucesso!'
+            ]);
+            
+        } catch (\Exception $e) {
+            // Erro ao criar usuário - mas submission já foi criada
+            Log::error('Erro no fluxo de registro', [
+                'protocolo' => $protocolo,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Retorna sucesso mesmo assim (submission já existe)
+            return response()->json([
+                'success' => true,
+                'redirect' => route('inscricao.sucesso', [
+                    'protocolo' => $protocolo,
+                    'token' => $access_token
+                ]),
+                'message' => 'Manifestação registrada. Entraremos em contato.'
             ]);
         }
     }

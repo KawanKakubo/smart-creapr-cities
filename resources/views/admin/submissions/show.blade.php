@@ -258,6 +258,13 @@
                             <p class="text-xs text-gray-500 mt-1">
                                 @if($submission->diagnostico_estimulo_concluido_em)
                                     Concluído em {{ $submission->diagnostico_estimulo_concluido_em->format('d/m/Y') }}
+                                    <form action="{{ route('admin.submissoes.unlockDiagnostic', [$submission, 'estimulo']) }}" method="POST" class="mt-2">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" onclick="return confirm('Tem certeza que deseja desbloquear este eixo? O município poderá editar e reenviar as respostas.')" class="text-xs px-3 py-1 bg-white text-blue-600 border border-blue-200 hover:bg-blue-100 font-semibold rounded-full transition shadow-sm">
+                                            🔓 Desbloquear
+                                        </button>
+                                    </form>
                                 @elseif($submission->diagnostico_estimulo_iniciado_em)
                                     Iniciado
                                 @else
@@ -273,6 +280,13 @@
                             <p class="text-xs text-gray-500 mt-1">
                                 @if($submission->diagnostico_educacao_concluido_em)
                                     Concluído em {{ $submission->diagnostico_educacao_concluido_em->format('d/m/Y') }}
+                                    <form action="{{ route('admin.submissoes.unlockDiagnostic', [$submission, 'educacao']) }}" method="POST" class="mt-2">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" onclick="return confirm('Tem certeza que deseja desbloquear este eixo? O município poderá editar e reenviar as respostas.')" class="text-xs px-3 py-1 bg-white text-green-600 border border-green-200 hover:bg-green-100 font-semibold rounded-full transition shadow-sm">
+                                            🔓 Desbloquear
+                                        </button>
+                                    </form>
                                 @elseif($submission->diagnostico_educacao_iniciado_em)
                                     Iniciado
                                 @else
@@ -288,6 +302,13 @@
                             <p class="text-xs text-gray-500 mt-1">
                                 @if($submission->diagnostico_estruturas_concluido_em)
                                     Concluído em {{ $submission->diagnostico_estruturas_concluido_em->format('d/m/Y') }}
+                                    <form action="{{ route('admin.submissoes.unlockDiagnostic', [$submission, 'estruturas']) }}" method="POST" class="mt-2">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" onclick="return confirm('Tem certeza que deseja desbloquear este eixo? O município poderá editar e reenviar as respostas.')" class="text-xs px-3 py-1 bg-white text-purple-600 border border-purple-200 hover:bg-purple-100 font-semibold rounded-full transition shadow-sm">
+                                            🔓 Desbloquear
+                                        </button>
+                                    </form>
                                 @elseif($submission->diagnostico_estruturas_iniciado_em)
                                     Iniciado
                                 @else

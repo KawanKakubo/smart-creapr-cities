@@ -1,0 +1,40 @@
+Eixo: ESTÍMULO (9 perguntas)
+1. Possui Lei de Inovação?
+2. Possui Política de Sandbox regulatório em conformidade com a Lei Complementar 182/2021?
+3. Possui Política de Governo Digital em conformidade com a Lei 14.129/2021?
+4. Já realizou alguma Contratação Pública de Solução Inovadora (CPSI) utilizando a lei complementar 182/2021?
+5. Possui Planejamento Estratégico de Longo Prazo (10 anos ou mais)?
+6. Possui Normativa regulamentando a Lei Geral de Proteção de Dados (Lei 13.709/2018)?
+7. O Governo Municipal já realizou algum movimento de inovação (ideathons/hackathons) com algum segmento econômico da cidade?
+8. O Município Possui alguma Startup legalizada?
+9. O Governo Municipal possui algum programa para oportunidades aos empreendedores locais?
+
+Eixo: EDUCAÇÃO (11 perguntas)
+1. Possui alguma instituição de Ensino Técnico na cidade?
+2. Possui alguma universidade pública com ensino presencial na cidade?
+3. Possui alguma universidade privada com ensino presencial na cidade?
+4. O Governo Municipal oferta algum programa para Letramento Digital do cidadão?
+5. O Governo Municipal oferta algum programa para Letramento em Soft Skills?
+6. O Governo Municipal oferta algum programa para Letramento em Green Skills?
+7. O Governo Municipal já realizou movimentos de Inovação (Hackathons/Ideathons) na Educação Básica, seja ela pública ou privada?
+8. Possui algum programa para gestão de talentos (formar, atrair e reter)?
+9. Faz uso de tecnologia em Sala de Aula na Rede Municipal de Educação?
+10. Faz uso de métodos ativos em Sala de Aula na Rede Municipal de Educação?
+11. A Rede Municipal de Educação aplica STEAM (Ciência, Tecnologia, Engenharia, Artes e Matemática) no processo de aprendizagem do aluno?
+
+Eixo: ESTRUTURAS (15 perguntas)
+1. Qual o nível de interoperabilidade dos sistemas de gestão?
+2. Possui ambiente promotores de inovação certificados pela Separtec?
+3. O Governo Municipal possui alguma ferramenta de Gestão de Identidades para promover a interoperabilidade de dados e a individualização das políticas públicas para o cidadão?
+4. Possui Plano Diretor de Cidade Inteligente?
+5. Possui Plano Diretor para Comunidade Inteligente?
+6. O município possui algum projeto voltado para Energias Renováveis?
+7. O município já está fazendo o uso de BIM na elaboração de seus projetos?
+8. O município possui algum projeto de economia verde?
+9. O município possui algum projeto de economia azul?
+10. O município possui algum projeto de Fazenda/Horta Urbana?
+11. O município possui algum projeto para engajamento digital do cidadão?
+12. O governo municipal utiliza IoT (Internet of Things) para controle operacionais da cidade?
+13. O município possui algum projeto com o uso de beacons para o Turismo Inteligente?
+14. O município possui algum projeto para o fortalecimento do comércio local através do uso de tecnologias?
+15. O município possui algum projeto para a realização de compras públicas inteligentes (que priorize os negócios locais)?

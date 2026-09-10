@@ -62,6 +62,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/submissoes/{submission}', [AdminSubmissionController::class, 'show'])->name('submissoes.show');
     Route::patch('/submissoes/{submission}/status', [AdminSubmissionController::class, 'updateStatus'])->name('submissoes.updateStatus');
     Route::patch('/submissoes/{submission}/mais-engenharia', [AdminSubmissionController::class, 'updateMaisEngenharia'])->name('submissoes.updateMaisEngenharia');
+    Route::patch('/submissoes/{submission}/unlock-diagnostic/{category}', [AdminSubmissionController::class, 'unlockDiagnostic'])->name('submissoes.unlockDiagnostic');
     
     // Custom Emailing and Communications Campaigns
     Route::get('/comunicados', [AdminEmailController::class, 'create'])->name('emails.create');
