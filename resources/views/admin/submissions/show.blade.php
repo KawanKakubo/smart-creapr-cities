@@ -170,8 +170,14 @@
                         <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
                             <p class="font-semibold text-green-800">✓ Município faz parte do programa Mais Engenharia</p>
                         </div>
-                        
-                        @if($submission->responsavel_nome)
+                    @else
+                        <div class="bg-gray-50 border-l-4 border-gray-400 p-4 mb-4">
+                            <p class="font-semibold text-gray-700">Município NÃO faz parte do programa Mais Engenharia</p>
+                            <p class="text-sm text-gray-600 mt-1">Os dados da inscrição permanecem disponíveis para consulta administrativa.</p>
+                        </div>
+                    @endif
+
+                    @if($submission->responsavel_nome)
                             <div class="mt-4">
                                 <h3 class="font-semibold text-gray-900 mb-3">Responsável</h3>
                                 <div class="grid grid-cols-2 gap-4">
@@ -201,9 +207,9 @@
                                     </div>
                                 </div>
                             </div>
-                        @endif
+                    @endif
                         
-                        @if($submission->prefeito_nome)
+                    @if($submission->prefeito_nome)
                             <div class="mt-6">
                                 <h3 class="font-semibold text-gray-900 mb-3">Prefeito</h3>
                                 <div class="grid grid-cols-2 gap-4">
@@ -217,12 +223,6 @@
                                     </div>
                                 </div>
                             </div>
-                        @endif
-                    @else
-                        <div class="bg-gray-50 border-l-4 border-gray-400 p-4">
-                            <p class="font-semibold text-gray-700">Município NÃO faz parte do programa Mais Engenharia</p>
-                            <p class="text-sm text-gray-600 mt-1">Aguardando futuro contato do CREA-PR</p>
-                        </div>
                     @endif
                 </div>
 
