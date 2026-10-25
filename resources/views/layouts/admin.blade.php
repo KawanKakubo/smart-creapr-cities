@@ -30,6 +30,10 @@
                         Submissões
                     </a>
                     <span class="text-gray-300">|</span>
+                    <a href="{{ route('admin.workshop.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">
+                        Oficina
+                    </a>
+                    <span class="text-gray-300">|</span>
                     <a href="{{ route('admin.questions.index') }}" 
                         class="text-blue-600 hover:text-blue-800 font-semibold text-sm">
                         Questões
